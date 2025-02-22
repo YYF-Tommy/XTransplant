@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# model="YourPath/Mistral-7B-Instruct-v0.3"
+# model="YourPath/Qwen2-7B-Instruct"
+# model="YourPath/bloomz-7b1"
+model="YourPath/chinese-alpaca-2-7b"
+# model="YourPath/Llama-2-7b-chat-hf"
+# dataset="xquad_sample"
+# dataset="xnli_sample"
+dataset="xcopa_sample"
+# 
+
+mn=$(basename "$model")
+
+
+run_task() {
+    CUDA_DEVICE=$1
+    LANG=$2
+    # for VAR in $(seq $START $END); do
+    for source in {0..31}; do
+        for target in {0..31}; do
+            OUTPUT_FILE="./logs/${dataset}_reverse/${mn}_${LANG}.log"
+            CUDA_VISIBLE_DEVICES=$CUDA_DEVICE python transplant_multilingual.py --model $model --dataset $dataset --source_layer $source --target_layers $target --lang ${LANG} >> $OUTPUT_FILE 2>&1
+        done
+    done
+}
+
+
+# XCOPA
+LANGS=('et' 'ht' 'id' 'it' 'sw' 'ta' 'th' 'tr')
+# LANGS=('vi' 'zh')
+
+# XQuAD
+# LANGS=('ar' 'de' 'el' 'en' 'es' 'hi' 'ro' 'ru')
+# LANGS=('th' 'tr' 'vi' 'zh')
+
+# XNLI
+# LANGS=("ar" "bg" "de" "el" "en" "es" "fr" "hi")
+# LANGS=("ru" "sw" "th" "tr" "ur" "vi" "zh")
+
+for i in {0..7}; do
+    (run_task $i ${LANGS[$i]}) &
+done
+
+wait
+# ${LANGS[$i]}

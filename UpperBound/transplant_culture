@@ -1,0 +1,33 @@
+#!/bin/bash
+
+model="YourPath/Llama-2-7b-chat-hf"
+# model="YourPath/Mistral-7B-Instruct-v0.3"
+# model="YourPath/Qwen2-7B-Instruct"
+# model="YourPath/chinese-alpaca-2-7b"
+dataset="globalopinionqa_sample"
+
+mn=$(basename "$model")
+
+run_task() {
+    CUDA_DEVICE=$1
+    LANG=$2
+    # "Llama-2-7b-chat-hf" has 32 decoder layers
+    for source in {0..31}; do
+        for target in 0; do  # If "overall" mode is needed, set "for target in {0..31}; do"
+            OUTPUT_FILE="./logs/${dataset}/${mn}_${LANG}.log"
+            CUDA_VISIBLE_DEVICES=$CUDA_DEVICE python transplant_culture.py --model $model --dataset $dataset --source_layer $source --target_layers $target --lang ${LANG} >> $OUTPUT_FILE 2>&1
+        done
+    done
+}
+
+
+LANGS=('am' 'ar' 'bn' 'de' 'el' 'en' 'es' 'fr')
+# LANGS=('hi' 'id' 'it' 'ja' 'ko' 'nl' 'pt' 'ru')
+# LANGS=('uk' 'sw' 'vi' 'zh-CN')
+
+for i in {0..7}; do
+    (run_task $i ${LANGS[$i]}) &
+done
+
+wait
+# ${LANGS[$i]}

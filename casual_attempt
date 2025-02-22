@@ -1,0 +1,16 @@
+#!/bin/bash
+# script for casual attempts
+
+# model: set your local model path here
+# input_main: set your txt file path here, which contains your main question
+# input_aux: set your txt file path here, which contains the translated version of your main question
+# source: set the source layer you wanna transplant from "input_aux" (Counting starts from 0)
+# target: set the target layer you wanna transplant to "input_main" (Counting starts from 0)
+
+model="YourPath/Llama-2-7b-chat-hf"
+input_main=""
+input_aux=""
+# model="YourPath/Mistral-7B-Instruct-v0.3"
+# model="YourPath/Qwen2-7B-Instruct"
+
+python casual_attempt.py --model $model --input_main $dataset --input_aux $lang --source 16 --target 4
