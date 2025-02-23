@@ -64,27 +64,17 @@ def transplant_mlp(source_input, native_input, source_layer, target_layers, max_
     source_input: original input (in English)
     native_input: translated input (in non-en language)
     """
-    # llama = Llama7BHelper(model_name, load_kwargs, None)
-    time1 = time.time()
     helper.reset_changes(None)
     output_native = helper.generate_text(native_input, max_new_tokens=1)
-    # print(output_native)
-    time2 = time.time()
     mlp_activations = helper.get_activation(list(range(source_layer, source_layer+1)), 'mlp')
     
     value = mlp_activations.pop(source_layer)
     for i in target_layers:
         mlp_activations[i] = value
 
-    time3 = time.time()
-    # print(mlp_activations)
-    # print(len(mlp_activations[25]["mlp"]))
     helper.reset_changes(mlp_activations)
     helper.reset_now_token()
-    time4 = time.time()
     output = helper.generate_text(source_input, max_new_tokens=max_new_tokens)
-    time5 = time.time()
-    # print(time2-time1, time3-time2, time4-time3, time5-time4)
     return output_native, output
 
 
@@ -127,9 +117,9 @@ def transplant():
         helper.reset_mlp()
 
     
-    if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}_reverse/{model_folder}/{name}"):
-        os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}_reverse/{model_folder}/{name}")
-    with jsonlines.open(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}_reverse/{model_folder}/{name}/{lang}.json", 'w') as f_write:
+    if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}/{name}"):
+        os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}/{name}")
+    with jsonlines.open(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}/{name}/{lang}.json", 'w') as f_write:
         for line in outputs:
             f_write.write(line)
 
@@ -168,15 +158,15 @@ if __name__ == "__main__":
 
     name = f"transplant_{source_layer}to{target_layers[0]}"
     
-    if os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}_reverse/{model_folder}/{name}/{lang}.json"):
+    if os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}/{name}/{lang}.json"):
         print(f"#SKIP# {name}")
     else:
         print(name)
         
-        if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}_reverse"):
-            os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}_reverse")
-        if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}_reverse/{model_folder}"):
-            os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}_reverse/{model_folder}")
+        if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}"):
+            os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}")
+        if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}"):
+            os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}")
 
         load_kwargs = dict(
             device_map="auto",

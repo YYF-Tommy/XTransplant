@@ -8,9 +8,14 @@
 # target: set the target layer you wanna transplant to "input_main" (Counting starts from 0)
 
 model="YourPath/Llama-2-7b-chat-hf"
-input_main=""
-input_aux=""
 # model="YourPath/Mistral-7B-Instruct-v0.3"
 # model="YourPath/Qwen2-7B-Instruct"
+input_main="YourPath/input_main.txt"
+input_aux="YourPath/input_aux.txt"
 
-python casual_attempt.py --model $model --input_main $dataset --input_aux $lang --source 16 --target 4
+python casual_attempt.py \
+    --model $model \
+    --input_main $dataset \
+    --input_aux $lang \
+    --source 16 \
+    --target 4

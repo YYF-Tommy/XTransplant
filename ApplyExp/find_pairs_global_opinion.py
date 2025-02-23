@@ -3,7 +3,6 @@ import os
 import numpy as np
 import string
 from collections import defaultdict
-import argparse
 from tqdm.auto import tqdm
 
 def match(pred, gold):
@@ -23,7 +22,7 @@ def get_golden(lang):
         id2label[i] = letter
     golden = []
     ls = []
-    with jsonlines.open(f"/home/yfye/AAAI-2025/LayerTransplant/data/GlobalOpinionQA/GlobalOpinionQA_sample/split/{lang}.json", "r") as f:
+    with jsonlines.open(f"/XTransplant/data/GlobalOpinionQA/GlobalOpinionQA_sample/split/{lang}.json", "r") as f:
         for line in f:
             probs = line["label"]
             label = id2label[np.argmax(probs)]
@@ -53,8 +52,8 @@ def acc4lang(lang):
     for i in range(0, N):
         union_y = {}
         for j in range(0, N):
-            if os.path.exists(f"/home/yfye/ICLR2025/UpperBound/GlobalOpinionQA_sample/{model_name}_all/transplant_{i}to{j}_firsttoken/{lang}.json"):
-                acc, s = eval(f"/home/yfye/ICLR2025/UpperBound/GlobalOpinionQA_sample/{model_name}_all/transplant_{i}to{j}_firsttoken/{lang}.json", lang)
+            if os.path.exists(f"/XTransplant/UpperBound/output/GlobalOpinionQA_sample/{model_name}/transplant_{i}to{j}/{lang}.json"):
+                acc, s = eval(f"/XTransplant/UpperBound/output/GlobalOpinionQA_sample/{model_name}/transplant_{i}to{j}/{lang}.json", lang)
                 all[i, j] = s.copy()
             else:
                 all[i, j] = []
@@ -134,6 +133,6 @@ for model_name in ["Llama-2-7b-chat-hf", "Qwen2-7B-Instruct", "Mistral-7B-Instru
         indices = find_best_index(max_indices)
         d[lang] = indices
 
-    os.makedirs(f"/home/yfye/myGithub/XTransplant/ApplyExp/saved_pairs/GlobalOpinionQA_sample/{mode}", exist_ok=True)
-    with jsonlines.open(f"/home/yfye/myGithub/XTransplant/ApplyExp/saved_pairs/GlobalOpinionQA_sample/{mode}/{model_name}.json", 'w') as f:
+    os.makedirs(f"/XTransplant/ApplyExp/saved_pairs/GlobalOpinionQA_sample/{mode}", exist_ok=True)
+    with jsonlines.open(f"/XTransplant/ApplyExp/saved_pairs/GlobalOpinionQA_sample/{mode}/{model_name}.json", 'w') as f:
         f.write(d)

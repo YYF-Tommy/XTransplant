@@ -53,7 +53,7 @@ def acc4lang(lang):
     for i in range(0, N):
         union_y = {}
         for j in range(0, N):
-            acc, s = eval(f"/XTransplant/UpperBound/GlobalOpinionQA_sample/{model_name}_all/transplant_{i}to{j}_firsttoken/{lang}.json", lang)
+            acc, s = eval(f"/XTransplant/UpperBound/GlobalOpinionQA_sample/{model_name}/transplant_{i}to{j}/{lang}.json", lang)
             all[i, j] = s.copy()
     union = []
     for i in range(0, N):

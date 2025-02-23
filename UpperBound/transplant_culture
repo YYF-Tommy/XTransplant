@@ -15,7 +15,12 @@ run_task() {
     for source in {0..31}; do
         for target in 0; do  # If "overall" mode is needed, set "for target in {0..31}; do"
             OUTPUT_FILE="./logs/${dataset}/${mn}_${LANG}.log"
-            CUDA_VISIBLE_DEVICES=$CUDA_DEVICE python transplant_culture.py --model $model --dataset $dataset --source_layer $source --target_layers $target --lang ${LANG} >> $OUTPUT_FILE 2>&1
+            CUDA_VISIBLE_DEVICES=$CUDA_DEVICE python transplant_culture.py \
+                --model $model \
+                --dataset $dataset \
+                --source_layer $source \
+                --target_layers $target \
+                --lang ${LANG} >> $OUTPUT_FILE 2>&1
         done
     done
 }
@@ -30,4 +35,3 @@ for i in {0..7}; do
 done
 
 wait
-# ${LANGS[$i]}

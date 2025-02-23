@@ -16,11 +16,16 @@ mn=$(basename "$model")
 run_task() {
     CUDA_DEVICE=$1
     LANG=$2
-    # for VAR in $(seq $START $END); do
+    # "Llama-2-7b-chat-hf" has 32 decoder layers
     for source in {0..31}; do
-        for target in {0..31}; do
+        for target in 0; do  # If "overall" mode is needed, set "for target in {0..31}; do"
             OUTPUT_FILE="./logs/${dataset}_reverse/${mn}_${LANG}.log"
-            CUDA_VISIBLE_DEVICES=$CUDA_DEVICE python transplant_multilingual.py --model $model --dataset $dataset --source_layer $source --target_layers $target --lang ${LANG} >> $OUTPUT_FILE 2>&1
+            CUDA_VISIBLE_DEVICES=$CUDA_DEVICE python transplant_multilingual.py \
+                --model $model \
+                --dataset $dataset \
+                --source_layer $source \
+                --target_layers $target \
+                --lang ${LANG} >> $OUTPUT_FILE 2>&1
         done
     done
 }

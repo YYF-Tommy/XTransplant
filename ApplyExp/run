@@ -1,65 +1,33 @@
-#!/bin/bash
-#SBATCH -J check                               
-#SBATCH -o slurm-%j.out
-#SBATCH -e slurm-%j.err
-#SBATCH -p compute
-#SBATCH -N 1
-#SBATCH -t 15:00:00                          
-#SBATCH -w gpu16
-#SBATCH --gres=gpu:a100-pcie-40gb:1
-#SBATCH --mem=100GB  # 80 GB
+dataset="globalopinionqa_unseen"
+# dataset="xnli_unseen"
+# dataset="xquad_unseen"
+# dataset="xcopa_unseen"
 
-source ~/.bashrc
+models=("YourPath/Llama-2-7b-chat-hf" "YourPath/Mistral-7B-Instruct-v0.3" "YourPath/Qwen2-7B-Instruct") 
 
-# 设置运行环境
-export PATH="/users12/yfye/anaconda3/bin:$PATH"
-source activate aaai2025
+# globalopinionqa
+langs=('am' 'ar' 'bn' 'de' 'el' 'en' 'es' 'fr' 'hi' 'id' 'it' 'ja' 'ko' 'nl' 'pt' 'ru' 'uk' 'sw' 'vi' 'zh-CN')
 
+# XCOPA
+# LANGS=('et' 'ht' 'id' 'it' 'sw' 'ta' 'th' 'tr' 'vi' 'zh')
 
-# python transplant_culture.py --model $model --dataset $dataset
-# chinese-alpaca-2-7b
+# XQuAD
+# LANGS=('ar' 'de' 'el' 'en' 'es' 'hi' 'ro' 'ru' 'th' 'tr' 'vi' 'zh')
 
-# model="/home/yfye/pre-trained/bloomz-7b1"
-# model="/home/yfye/pre-trained/chinese-alpaca-2-7b"
-# model="/home/yfye/pre-trained/Llama-2-7b-chat-hf"
-# model="/home/yfye/pre-trained/Mistral-7B-Instruct-v0.3"
-# model="/home/yfye/pre-trained/Qwen2-7B-Instruct"
-# dataset="xquad"
-# dataset="xquad_sample"
-# dataset="culturalbench"
-# dataset="normad"
-# dataset="globalopinionqa_sample"
-# dataset="xnli_practice"
-# dataset="xquad_practice"
-dataset="globalopinionqa_practice"
-# dataset="xcopa_practice"
-# dataset="normad"
-# dataset="cultural_nli"
-# dataset="culturebank"
-# dataset="xcopa_practice"
-# dataset=globalopinionqa_sample
+# XNLI
+# LANGS=("ar" "bg" "de" "el" "en" "es" "fr" "hi" "ru" "sw" "th" "tr" "ur" "vi" "zh")
 
-
-# models=("/home/yfye/pre-trained/Llama-2-7b-chat-hf" "/home/yfye/pre-trained/Mistral-7B-Instruct-v0.3" "/home/yfye/pre-trained/Qwen2-7B-Instruct")
-
-
-models=("/home/yfye/ICLR2025/practice/sft-LLMs/Llama-2-7b-chat-hf" "/home/yfye/ICLR2025/practice/sft-LLMs/Mistral-7B-Instruct-v0.3" "/home/yfye/ICLR2025/practice/sft-LLMs/Qwen2-7B-Instruct") 
-
-langs=("am" "ar" "bn" "de" "el" "en" "es" "fr" "hi" "id" "it" "ja" "ko" "nl" "pt" "ru" "sv" "sw" "tl" "tr" "uk" "ur" "vi" "zh-CN")
-# langs=('ar' 'bg' 'de' 'el' 'en' 'es' 'fr' 'hi' 'ru' 'sw' 'th' 'tr' 'ur' 'vi' 'zh')
-# langs=('ar' 'de' 'el' 'en' 'es' 'hi' 'ro' 'ru' 'th' 'tr' 'vi' 'zh')
-# langs=("bg" "th" "tr" "zh")
-# langs=('en' 'et' 'ht' 'id' 'it' 'sw' 'ta' 'th' 'tr' 'vi' 'zh')
-
-mode="overall"
-mode="sourcelast"
+# mode="overall"
+# mode="sourcelast"
 mode="targetfirst"
 
 
 for model in "${models[@]}"; do
     for lang in "${langs[@]}"; do
-        python run_best.py --model $model --dataset $dataset --lang $lang --mode $mode
+        python run_best.py \
+            --model $model \
+            --dataset $dataset \
+            --lang $lang \
+            --mode $mode
     done
 done
-
-# python transplant_culture_raw.py --model $model --dataset $dataset --lang en

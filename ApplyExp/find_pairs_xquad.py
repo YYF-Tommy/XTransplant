@@ -36,8 +36,11 @@ def acc4lang(lang):
     for i in range(0, N):
         union_y = {}
         for j in range(0, N):
-            acc, s = eval(f"/home/yfye/ICLR2025/UpperBound/XQuAD_sample_reverse/{model_name}_all/transplant_{i}to{j}_firsttoken/{lang}.json", lang)
-            all[i, j] = s.copy()
+            if os.path.exists(f"/XTransplant/UpperBound/output/XQuAD_sample/{model_name}/transplant_{i}to{j}/{lang}.json"):
+                acc, s = eval(f"/XTransplant/UpperBound/output/XQuAD_sample/{model_name}/transplant_{i}to{j}/{lang}.json", lang)
+                all[i, j] = s.copy()
+            else:
+                all[i, j] = []
     union = []
     for i in range(0, N):
         union_x = []
@@ -115,6 +118,6 @@ for model_name in ["Llama-2-7b-chat-hf", "Qwen2-7B-Instruct", "Mistral-7B-Instru
         indices = find_best_index(max_indices)
         d[lang] = indices
 
-    os.makedirs(f"/home/yfye/ICLR2025/practice/pairs_most_sourcelast/XQuAD_sample_reverse/{mode}", exist_ok=True)
-    with jsonlines.open(f"/home/yfye/ICLR2025/practice/pairs_most_sourcelast/XQuAD_sample_reverse/{mode}/{model_name}.json", 'w') as f:
+    os.makedirs(f"/XTransplant/ApplyExp/saved_pairs/XQuAD_sample/{mode}", exist_ok=True)
+    with jsonlines.open(f"/XTransplant/ApplyExp/saved_pairs/XQuAD_sample/{mode}/{model_name}.json", 'w') as f:
         f.write(d)

@@ -58,7 +58,7 @@ def acc4lang(lang):
         union_y = {}
         for j in range(0, N):
             # print(lang, i, j)
-            acc, s = eval(f"/XTransplant/UpperBound/XNLI_sample_noise2_reverse/{model_name}_all/transplant_{i}to{j}_firsttoken/{lang}.json", lang)
+            acc, s = eval(f"/XTransplant/UpperBound/XNLI_sample/{model_name}/transplant_{i}to{j}/{lang}.json", lang)
             all[i, j] = s.copy()
     union = []
     for i in range(0, N):
@@ -122,12 +122,3 @@ each.append(var)
 each = [str(item) for item in each]
 print("\t".join(each))
 print("Var:, ", var)
-
-
-print()
-print("rate: ", correct_num / (N * N * 50 * len(langs)))
-
-# with jsonlines.open("/home/yfye/ICLR2025/UpperBound/lang_preference/Llama-2-7b-chat-hf_culture.json", 'w') as f_write:
-#     f_write.write(d)
-
-
