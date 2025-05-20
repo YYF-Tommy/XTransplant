@@ -13,8 +13,12 @@ model="YourPath/Llama-2-7b-chat-hf"
 input_main="YourPath/input_main.txt"
 input_aux="YourPath/input_aux.txt"
 
+granularity="attn"
+# granularity="ffn"
+
 python casual_attempt.py \
     --model $model \
+    --granularity $granularity \
     --input_main $dataset \
     --input_aux $lang \
     --source 16 \

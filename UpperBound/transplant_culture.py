@@ -4,10 +4,6 @@ Transplant from non-English to English (for culture-aware tasks)
 culture-aware tasks: aims to evaluate the model's cultural adaptability under English context.
 '''
 import sys
-sys.path.append("/XTransplant/modelwrapper")
-from llama2wrapper import Llama7BHelper
-from mistralwrapper import Mistral7BHelper
-from qwen2wrapper import Qwen7BHelper
 import torch
 import os
 import jsonlines
@@ -91,9 +87,8 @@ def transplant():
         outputs.extend(output)
         helper.reset_mlp()
     
-    if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}/{name}"):
-        os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}/{name}")
-    with jsonlines.open(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}/{name}/{lang}.json", 'w') as f_write:
+    os.makedirs(f"/XTransplant/UpperBound/output_{granularity}/{folder_name[dataset_name]}/{model_folder}/{name}", exist_ok=True)
+    with jsonlines.open(f"/XTransplant/UpperBound/output_{granularity}/{folder_name[dataset_name]}/{model_folder}/{name}/{lang}.json", 'w') as f_write:
         for line in outputs:
             f_write.write(line)
 
@@ -101,6 +96,7 @@ def transplant():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", type=str, default="")
+    parser.add_argument("-g", "--granularity", type=str, choices=['attn', 'ffn'])
     parser.add_argument("-d", "--dataset", type=str, default="")
     parser.add_argument("-s", "--source_layer", type=int, default=0)
     parser.add_argument("-t", "--target_layers", type=int, default=0)
@@ -109,6 +105,22 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print(torch.cuda.is_available())
+
+    granularity = args.granularity
+
+    if granularity == "attn":
+        sys.path.append("/XTransplant/modelwrapper_attn")
+        from llama2wrapper import Llama7BHelper
+        from mistralwrapper import Mistral7BHelper
+        from qwen2wrapper import Qwen7BHelper
+
+    elif granularity == "ffn":
+        sys.path.append("/XTransplant/modelwrapper_ffn")
+        from llama2wrapper import Llama7BHelper
+        from mistralwrapper import Mistral7BHelper
+        from qwen2wrapper import Qwen7BHelper
+    else:
+        print("******** Unknown Granularity! ********")
 
     dataset_name = args.dataset
 
@@ -127,15 +139,12 @@ if __name__ == "__main__":
 
     name = f"transplant_{source_layer}to{target_layers[0]}"
     
-    if os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}/{name}/{lang}.json"):
+    if os.path.exists(f"/XTransplant/UpperBound/output_{granularity}/{folder_name[dataset_name]}/{model_folder}/{name}/{lang}.json"):
         print(f"#SKIP# {name}")
     else:
         print(name)
-        
-        if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}"):
-            os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}")
-        if not os.path.exists(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}"):
-            os.mkdir(f"/XTransplant/UpperBound/output/{folder_name[dataset_name]}/{model_folder}")
+
+        os.makedirs(f"/XTransplant/UpperBound/output_{granularity}/{folder_name[dataset_name]}/{model_folder}", exist_ok=True)
 
         load_kwargs = dict(
             device_map="auto",

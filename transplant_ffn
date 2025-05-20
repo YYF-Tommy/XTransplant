@@ -1,0 +1,26 @@
+dataset="xquad"
+dataset="mkqa"
+dataset="globalopinionqa"
+dataset="culturalbench"
+
+# XQuAD
+langs=('ar' 'de' 'el' 'en' 'es' 'hi' 'ro' 'ru' 'th' 'tr' 'vi' 'zh')
+
+# MKQA
+langs=('ar' 'de' 'en' 'es' 'fi' 'fr' 'he' 'hu' 'it' 'ja' 'ko' 'nl' 'no' 'pt' 'tr' 'vi' 'zh' )
+
+# GlobalOpinionQA
+langs=("am" "ar" "de" "el" "en" "es" "fr" "hi" "id" "ja" "pt" "ru" "sv" "sw" "tl" "tr" "uk" "ur" "vi" "zh-CN")
+
+# CulturalBench-Hard
+langs=("ar" "de" "en" "es" "fr" "he" "hi" "ja" "ko" "ms" "pl" "ru" "tl" "tr" "vi" "zh")
+
+
+model="XXX/Llama-2-7b-chat-hf"
+model="XXX/Mistral-7B-Instruct-v0.3"
+model="XXX/Qwen2-7B-Instruct"
+model="XXX/chinese-alpaca-2-7b"
+
+for lang in "${langs[@]}"; do
+    python transplant_ffn.py --model $model --dataset $dataset --lang $lang
+done

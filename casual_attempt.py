@@ -1,30 +1,28 @@
 import sys
-sys.path.append("/XTransplant/modelwrapper")
-from llama2wrapper import Llama7BHelper
-from mistralwrapper import Mistral7BHelper
-from qwen2wrapper import Qwen7BHelper
 import torch
 import argparse
 import time
 
 
-def transplant_mlp(input_1, input_2, source_layer, target_layers, max_new_tokens):
+def transplant_activations(input_1, input_2, source_layer, target_layers, max_new_tokens):
     # llama = Llama7BHelper(model_name, load_kwargs, None)
     time1 = time.time()
     helper.reset_changes(None)
     output_native = helper.generate_text(input_2, max_new_tokens=1)
     # print(output_native)
     time2 = time.time()
-    mlp_activations = helper.get_activation(list(range(source_layer, source_layer+1)), 'mlp')
+    if args.granularity == "ffn":
+        activations = helper.get_activation(list(range(source_layer, source_layer+1)), 'mlp')
+    else:
+        activations = helper.get_activation(list(range(source_layer, source_layer+1)), 'attn')
     
-    value = mlp_activations.pop(source_layer)
+    value = activations.pop(source_layer)
     for i in target_layers:
-        mlp_activations[i] = value
+        activations[i] = value
 
     time3 = time.time()
-    # print(mlp_activations)
-    # print(len(mlp_activations[25]["mlp"]))
-    helper.reset_changes(mlp_activations)
+
+    helper.reset_changes(activations)
     helper.reset_now_token()
     time4 = time.time()
     output = helper.generate_text(input_1, max_new_tokens=max_new_tokens)
@@ -47,9 +45,11 @@ def batch_split(prompts, batch_num):
 
 
 def transplant():
-
-    output = transplant_mlp(input_main, input_aux, source_layer, target_layers, max_new_tokens=20)
-    helper.reset_mlp()
+    output = transplant_activations(input_main, input_aux, source_layer, target_layers, max_new_tokens=20)
+    if args.granularity == "ffn":
+        helper.reset_mlp()
+    else:
+        helper.reset_attn()
     helper.reset_now_token()
     helper.reset_changes(None)
 
@@ -59,6 +59,7 @@ def transplant():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", type=str, default="")
+    parser.add_argument("-g", "--granularity", type=str, choices=['attn', 'ffn'])
     parser.add_argument("-i1", "--input_main", type=str, default=None)
     parser.add_argument("-i2", "--input_aux", type=str, default=None)
     parser.add_argument("-s", "--source", type=int, default=None)
@@ -67,6 +68,20 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print(torch.cuda.is_available())
+
+    if args.granularity == "attn":
+        sys.path.append("/XTransplant/modelwrapper_attn")
+        from llama2wrapper import Llama7BHelper
+        from mistralwrapper import Mistral7BHelper
+        from qwen2wrapper import Qwen7BHelper
+
+    elif args.granularity == "ffn":
+        sys.path.append("/XTransplant/modelwrapper_ffn")
+        from llama2wrapper import Llama7BHelper
+        from mistralwrapper import Mistral7BHelper
+        from qwen2wrapper import Qwen7BHelper
+    else:
+        print("******** Unknown Granularity! ********")
 
     model_name = args.model
     model_folder = model_name.split('/')[-1]

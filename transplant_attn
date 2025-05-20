@@ -1,0 +1,18 @@
+dataset="xnli"
+dataset="xcopa"
+
+
+model="XXX/Llama-2-7b-chat-hf"
+model="XXX/Mistral-7B-Instruct-v0.3"
+model="XXX/Qwen2-7B-Instruct"
+model="XXX/chinese-alpaca-2-7b"
+
+# XNLI
+langs=('ar' 'bg' 'de' 'el' 'en' 'es' 'fr' 'hi' 'ru' 'sw' 'tr' 'ur' 'vi' 'zh')
+
+# XCOPA
+langs=('en' 'ht' 'id' 'it' 'sw' 'ta' 'tr' 'vi' 'zh')
+
+for lang in "${langs[@]}"; do
+    python transplant_attn.py --model $model --dataset $dataset --lang $lang
+done
