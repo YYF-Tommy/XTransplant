@@ -17,7 +17,7 @@ Try **𝒳Transplant** between any layers for your custom input.
 ### 2. Coarse-grained Attempts
 
 <p align="center">
-  <img src="Asset/settings.pdf" width="750px" >
+  <img src="Asset/settings.png" width="750px" >
 </p>
 
 ```python
